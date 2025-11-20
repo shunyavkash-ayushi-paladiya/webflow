@@ -1,12 +1,12 @@
 import React from 'react';
-import { Splide, SplideSlide } from '@splidejs/react-splide';
+// import { Splide, SplideSlide } from '@splidejs/react-splide';
 
 function slider() {
   return (
     <section className="slider-section">
       <div className="container">
         <h2 className="slider-title">Trusted wine partner</h2>
-        <Splide 
+        {/* <Splide 
           options={{
             type: 'loop',
             perPage: 7,
@@ -56,7 +56,7 @@ function slider() {
           <SplideSlide>
             <img src="https://ik.imagekit.io/fa1ylzjml/logoipsum-369%20(1).svg?updatedAt=1759905082403" alt="Slide 1" className="slider-img" />
           </SplideSlide>
-        </Splide>
+        </Splide> */}
       </div>
     </section> 
 )
