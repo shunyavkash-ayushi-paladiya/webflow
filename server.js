@@ -23,19 +23,24 @@ if (!SITE_ID || !LIVE_SERVER_URL) {
 
 const REDIRECT_URI = `${LIVE_SERVER_URL}/auth/webflow/callback`;
 
+// Home route with Connect button
 app.get("/", (req, res) => {
-  res.send("✅ Webflow OAuth Server Running...");
+  res.send(`
+    <h1>✅ Webflow OAuth Server Running</h1>
+    <p>Click the button below to connect your Webflow account:</p>
+    <a href="${LIVE_SERVER_URL}/auth/webflow">
+      <button style="padding:10px 20px; font-size:16px;">Connect Webflow</button>
+    </a>
+  `);
 });
 
+// Step 1: Redirect to Webflow OAuth
 app.get("/auth/webflow", (req, res) => {
   if (!CLIENT_ID || !CLIENT_SECRET) {
     return res.status(500).send("❌ CLIENT_ID or CLIENT_SECRET missing in .env file");
   }
 
-  const scopes = [
-    "cms:read",
-    "cms:write"
-  ].join(" ");
+  const scopes = ["cms:read", "cms:write"].join(" ");
 
   const authURL = `https://webflow.com/oauth/authorize?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
     REDIRECT_URI
@@ -45,6 +50,7 @@ app.get("/auth/webflow", (req, res) => {
   res.redirect(authURL);
 });
 
+// Step 2: Webflow OAuth callback
 app.get("/auth/webflow/callback", async (req, res) => {
   const { code, error, error_description } = req.query;
 
@@ -58,6 +64,7 @@ app.get("/auth/webflow/callback", async (req, res) => {
   }
 
   try {
+    // Exchange code for access token
     const tokenResponse = await fetch("https://api.webflow.com/oauth/access_token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -80,12 +87,14 @@ app.get("/auth/webflow/callback", async (req, res) => {
     const accessToken = tokenData.access_token;
     console.log("✅ Access Token Received:", accessToken);
 
+    // Fetch collections for known site
     const collectionsRes = await fetch(`https://api.webflow.com/sites/${SITE_ID}/collections`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "accept-version": "1.0.0",
       },
     });
+
     const collectionsData = await collectionsRes.json();
 
     if (!Array.isArray(collectionsData)) {
@@ -93,6 +102,7 @@ app.get("/auth/webflow/callback", async (req, res) => {
       return res.status(500).json({ error: "Failed to fetch collections", details: collectionsData });
     }
 
+    // Fetch items for each collection
     const collectionsWithItems = [];
     for (const collection of collectionsData) {
       try {
@@ -123,6 +133,7 @@ app.get("/auth/webflow/callback", async (req, res) => {
       }
     }
 
+    // Respond with token + collections + items
     res.json({
       success: true,
       token: accessToken,
@@ -138,6 +149,10 @@ app.get("/auth/webflow/callback", async (req, res) => {
   }
 });
 
+// Optional health check
+app.get("/health", (req, res) => res.json({ status: "ok" }));
+
+// Start server
 app.listen(PORT, () => {
   console.log(`🚀 Server running at ${LIVE_SERVER_URL}`);
   console.log(`➡️ Start OAuth: ${LIVE_SERVER_URL}/auth/webflow`);
