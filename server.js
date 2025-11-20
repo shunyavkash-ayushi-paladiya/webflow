@@ -14,13 +14,14 @@ const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const PORT = process.env.PORT || 3000;
 const SITE_ID = process.env.WEBFLOW_SITE_ID;
+const LIVE_SERVER_URL = process.env.LIVE_SERVER_URL;
 
-if (!SITE_ID) {
-  console.error("❌ WEBFLOW_SITE_ID is missing in .env file");
+if (!SITE_ID || !LIVE_SERVER_URL) {
+  console.error("❌ WEBFLOW_SITE_ID or LIVE_SERVER_URL missing in .env");
   process.exit(1);
 }
 
-const REDIRECT_URI = `http://localhost:${PORT}/auth/webflow/callback`;
+const REDIRECT_URI = `${LIVE_SERVER_URL}/auth/webflow/callback`;
 
 app.get("/", (req, res) => {
   res.send("✅ Webflow OAuth Server Running...");
@@ -138,6 +139,6 @@ app.get("/auth/webflow/callback", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
-  console.log(`➡️ Start OAuth: http://localhost:${PORT}/auth/webflow`);
+  console.log(`🚀 Server running at ${LIVE_SERVER_URL}`);
+  console.log(`➡️ Start OAuth: ${LIVE_SERVER_URL}/auth/webflow`);
 });
