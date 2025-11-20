@@ -1,14 +1,8 @@
-
-import "./globle.css";
+import { ReactNode } from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/footer";
 
-export const metadata = {
-  title: "Modern Next.js Website",
-  description: "A sleek layout built with pure CSS",
-};
-
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body>
